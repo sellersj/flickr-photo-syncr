@@ -189,7 +189,7 @@ public class AlbumMirror {
         // Auth token = this.flickr.getAuthInterface().getToken(frob);
         // RequestContext.getRequestContext().setAuth(token);
         // authStore.store(token);
-        // System.out.println("Thanks.  You probably will not have to do this every time.  Now starting backup.");
+        // System.out.println("Thanks. You probably will not have to do this every time. Now starting backup.");
         // above code used in old lib
 
         AuthInterface authInterface = flickr.getAuthInterface();
@@ -350,8 +350,8 @@ public class AlbumMirror {
     }
 
     /**
-     * By design the calls used here will only return a <a
-     * href="http://flickrj.sourceforge.net/faq.php?faq_id=4">minimally filled out object</a>.
+     * By design the calls used here will only return a
+     * <a href="http://flickrj.sourceforge.net/faq.php?faq_id=4">minimally filled out object</a>.
      */
     // because of the photos.addAll(photoList);
     public List<Photo> getMinimallyFilledPhotos(String setId) throws Exception {
