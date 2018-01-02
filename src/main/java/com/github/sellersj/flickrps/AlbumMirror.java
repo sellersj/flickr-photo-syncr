@@ -199,12 +199,14 @@ public class AlbumMirror {
         System.out.println(url);
         System.out.println("Paste in the token it gives you:");
         System.out.print(">>");
-        String tokenKey = new Scanner(System.in).nextLine();
-        Token requestToken = authInterface.getAccessToken(accessToken, new Verifier(tokenKey));
-        Auth auth = authInterface.checkToken(requestToken);
-        RequestContext.getRequestContext().setAuth(auth);
-        this.authStore.store(auth);
-        System.out.println("Thanks. You probably will not have to do this every time. Now starting backup.");
+        try (Scanner scanner = new Scanner(System.in)) {
+            String tokenKey = scanner.nextLine();
+            Token requestToken = authInterface.getAccessToken(accessToken, new Verifier(tokenKey));
+            Auth auth = authInterface.checkToken(requestToken);
+            RequestContext.getRequestContext().setAuth(auth);
+            this.authStore.store(auth);
+            System.out.println("Thanks. You probably will not have to do this every time. Now starting backup.");
+        }
     }
 
     public void syncPhotos(String photosetId) throws Exception {
