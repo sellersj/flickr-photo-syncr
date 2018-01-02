@@ -43,8 +43,8 @@
       <version>2.16</version>
     </dependency>
     <dependency>
-      <groupId>com.aetrion.flickr</groupId>
-      <artifactId>flickrapi</artifactId>
+      <groupId>flickrj</groupId>
+      <artifactId>flickrj</artifactId>
       <version>1.2</version>
     </dependency>
     <dependency>
@@ -82,4 +82,11 @@
       </plugin>
     </plugins>
   </build>
+  <repositories>
+    <!-- needed for the flickr jar -->
+    <repository>
+      <id>clojars.org</id>
+      <url>http://clojars.org/repo</url>
+    </repository>
+  </repositories>
 </project>
