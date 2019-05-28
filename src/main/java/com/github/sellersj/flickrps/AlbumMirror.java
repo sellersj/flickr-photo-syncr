@@ -251,7 +251,7 @@ public class AlbumMirror {
         int downloadedFiles = 1;
         // // print a blank line before we enter the loop
         // System.out.println("");
-        System.out.println("Could to download " + (photos.size() - cachedFiles.size()) + " photos");
+        System.out.println("Going to download " + (photos.size() - cachedFiles.size()) + " photos");
 
         for (Photo photo : photos) {
 
