@@ -40,7 +40,7 @@
     <dependency>
       <groupId>com.flickr4java</groupId>
       <artifactId>flickr4java</artifactId>
-      <version>2.19</version>
+      <version>3.0.1</version>
     </dependency>
     <dependency>
       <groupId>flickrj</groupId>

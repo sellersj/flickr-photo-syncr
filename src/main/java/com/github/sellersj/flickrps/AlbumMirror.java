@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -16,11 +17,10 @@ import java.util.Properties;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
+import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.scribe.model.Token;
-import org.scribe.model.Verifier;
 import org.xml.sax.SAXException;
 
 import com.flickr4java.flickr.Flickr;
@@ -39,6 +39,8 @@ import com.flickr4java.flickr.photosets.Photoset;
 import com.flickr4java.flickr.photosets.PhotosetsInterface;
 import com.flickr4java.flickr.util.AuthStore;
 import com.flickr4java.flickr.util.FileAuthStore;
+import com.github.scribejava.core.model.OAuth1RequestToken;
+import com.github.scribejava.core.model.OAuth1Token;
 
 public class AlbumMirror {
 
@@ -57,7 +59,7 @@ public class AlbumMirror {
 
     /** The image size we want the pictures to be. */
     // Size.ORIGINAL; -- use this if you're using a projector?
-    private static final int DEFAULT_IMAGE_SIZE = Size.LARGE;
+    private static final int DEFAULT_IMAGE_SIZE = Size.LARGE_2048;
 
     private Flickr flickr;
 
@@ -181,7 +183,8 @@ public class AlbumMirror {
     private void authorize() throws IOException, SAXException, FlickrException {
         // String frob = this.flickr.getAuthInterface().getFrob();
         //
-        // URL authUrl = this.flickr.getAuthInterface().buildAuthenticationUrl(Permission.READ, frob);
+        // URL authUrl = this.flickr.getAuthInterface().buildAuthenticationUrl(Permission.READ,
+        // frob);
         // System.out.println("Please visit: " + authUrl.toExternalForm() + " then, hit enter.");
         //
         // System.in.read();
@@ -189,11 +192,12 @@ public class AlbumMirror {
         // Auth token = this.flickr.getAuthInterface().getToken(frob);
         // RequestContext.getRequestContext().setAuth(token);
         // authStore.store(token);
-        // System.out.println("Thanks. You probably will not have to do this every time. Now starting backup.");
+        // System.out.println("Thanks. You probably will not have to do this every time. Now
+        // starting backup.");
         // above code used in old lib
 
         AuthInterface authInterface = flickr.getAuthInterface();
-        Token accessToken = authInterface.getRequestToken();
+        OAuth1RequestToken accessToken = authInterface.getRequestToken();
         String url = authInterface.getAuthorizationUrl(accessToken, Permission.READ);
         System.out.println("Follow this URL to authorise yourself on Flickr");
         System.out.println(url);
@@ -201,7 +205,7 @@ public class AlbumMirror {
         System.out.print(">>");
         try (Scanner scanner = new Scanner(System.in)) {
             String tokenKey = scanner.nextLine();
-            Token requestToken = authInterface.getAccessToken(accessToken, new Verifier(tokenKey));
+            OAuth1Token requestToken = authInterface.getAccessToken(accessToken, tokenKey);
             Auth auth = authInterface.checkToken(requestToken);
             RequestContext.getRequestContext().setAuth(auth);
             this.authStore.store(auth);
@@ -226,7 +230,7 @@ public class AlbumMirror {
     public Map<String, File> findFiles() {
         Map<String, File> cache = new HashMap<String, File>();
 
-        String[] extensions = {"jpg"};
+        String[] extensions = { "jpg" };
         boolean recursive = true;
 
         Collection<File> files = FileUtils.listFiles(new File(CACHE_DIRECTORY), extensions, recursive);
@@ -277,7 +281,7 @@ public class AlbumMirror {
     public void downloadPhoto(Photo photo, String photoId) throws Exception {
 
         try {
-            int sizeToUse = getSizeToUse(photoId);
+            Size sizeToUse = getSizeToUse(photoId);
 
             // download to a temp file
             File outputfile = downloadPhotoToTempSpace(photo, photoId, sizeToUse);
@@ -328,24 +332,51 @@ public class AlbumMirror {
         return outputfile;
     }
 
-    private int getSizeToUse(String photoId) throws IOException, SAXException, FlickrException {
-        int sizeToUse = -1;
+    public File downloadPhotoToTempSpace(Photo photo, String photoId, Size size) throws Exception {
+
+        // download to a temp file
+        File outputfile = File.createTempFile(photoId, "jpg");
+
+        String target = size.getSource();
+        System.out.println("The url we're trying to use is: " + target);
+
+        URL url = new URL(target);
+        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+        conn.connect();
+        BufferedImage bi = ImageIO.read(conn.getInputStream());
+
+        ImageIO.write(bi, "jpg", outputfile);
+
+        if (outputfile.length() < 10000) {
+            System.err.println("had trouble downloading: " + photoId);
+        }
+
+        return outputfile;
+    }
+
+    private Size getSizeToUse(String photoId) throws IOException, SAXException, FlickrException {
+        Size sizeToUse = null;
+        Size original = null;
 
         // look for a large size, if they don't have it, download the
         // original
         Collection<Size> sizes = photoInterface.getSizes(photoId);
         for (Size size : sizes) {
+            if (Size.ORIGINAL == size.getLabel()) {
+                original = size;
+            }
+
             if (DEFAULT_IMAGE_SIZE == size.getLabel()) {
-                sizeToUse = DEFAULT_IMAGE_SIZE;
+                sizeToUse = size;
                 break;
             }
         }
 
         // if we had not found the size we were looking for, use the original
-        if (-1 == sizeToUse) {
+        if (null == sizeToUse) {
             System.err.println("Using the original size for photoId: " + photoId);
 
-            sizeToUse = Size.ORIGINAL;
+            sizeToUse = original;
         }
 
         return sizeToUse;
@@ -377,8 +408,8 @@ public class AlbumMirror {
     }
 
     /**
-     * If the files exist locally, but are not in the set, we can assume that they should not be part of the set any
-     * more.
+     * If the files exist locally, but are not in the set, we can assume that they should not be
+     * part of the set any more.
      */
     public void removeFilesThatAreNoLongerInSet(Map<String, File> cachedFiles, List<Photo> photos) throws Exception {
         // make a quick set of all the photo ids
@@ -457,22 +488,6 @@ public class AlbumMirror {
 
         System.out.println("total photos are: " + photoIdsToAdd.size());
         return photoIdsToAdd;
-    }
-
-    public void download(String targetDirectory, int size, Photo photo) throws Exception {
-        File destFile = new File(targetDirectory + photo.getId() + ".jpg");
-
-        if (destFile.exists()) {
-            System.out.println("Skipping downloading file: " + destFile.getAbsolutePath());
-
-        } else {
-
-            File temp = downloadPhotoToTempSpace(photo, photo.getId(), size);
-            FileUtils.moveFile(temp, destFile);
-
-            // should only need to do this part if the file is downloaded
-            setTimeIfPossible(photo, destFile);
-        }
     }
 
 }
