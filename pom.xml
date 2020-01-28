@@ -7,7 +7,7 @@
   <name>Flickr Photo Syncr</name>
 
   <properties>
-    <maven.compiler.release>11</maven.compiler.release>
+    <maven.compiler.release>13</maven.compiler.release>
   </properties>
 
   <dependencyManagement>
@@ -16,7 +16,7 @@
         <!-- Import dependency management from Spring Boot -->
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
-        <version>2.2.1.RELEASE</version>
+        <version>2.2.4.RELEASE</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
