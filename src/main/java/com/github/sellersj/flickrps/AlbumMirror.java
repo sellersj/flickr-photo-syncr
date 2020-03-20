@@ -255,7 +255,8 @@ public class AlbumMirror {
         int downloadedFiles = 1;
         // // print a blank line before we enter the loop
         // System.out.println("");
-        System.out.println("Going to download " + (photos.size() - cachedFiles.size()) + " photos");
+        int numberOfFilesToDownload = photos.size() - cachedFiles.size();
+        System.out.println("Going to download " + numberOfFilesToDownload + " photos");
 
         for (Photo photo : photos) {
 
@@ -270,7 +271,7 @@ public class AlbumMirror {
                 downloadPhoto(fullPhoto, photoId);
 
                 // backslash r repositions the curser at the start of the line
-                System.out.println("Downloading file " + downloadedFiles++);
+                System.out.println("Downloading file " + downloadedFiles++ + " of " + numberOfFilesToDownload);
             } else {
                 // TODO put in some better logging here
                 // System.out.println("Caching file with id: " + photoId);
