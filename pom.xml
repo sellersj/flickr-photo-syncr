@@ -52,6 +52,12 @@
       <artifactId>metadata-extractor</artifactId>
       <version>2.15.0</version>
     </dependency>
+    <!-- needed to fix issues with ImageIO reading jpegs -->
+    <dependency>
+      <groupId>com.twelvemonkeys.imageio</groupId>
+      <artifactId>imageio-jpeg</artifactId>
+      <version>3.6</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
