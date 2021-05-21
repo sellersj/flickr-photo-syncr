@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 import javax.net.ssl.HttpsURLConnection;
@@ -112,9 +113,38 @@ public class AlbumMirror {
         // put back the sync code
         pull.syncPhotos(pull.SET_TO_SYNC_DOWN);
 
+        // makeCountDirectory(pull);
+
         long t2 = System.currentTimeMillis();
         System.out.println("total time took was: " + (t2 - t1) + " milliseconds.");
 
+    }
+
+    private static void makeCountDirectory(AlbumMirror pull) throws Exception {
+        // find all the files
+        final String[] SUFFIX = { "jpg" };
+        File rootDir = new File(pull.CACHE_DIRECTORY);
+        Collection<File> files = FileUtils.listFiles(rootDir, SUFFIX, true);
+
+        File countDir = new File(pull.CACHE_DIRECTORY + "count/");
+        countDir.mkdir();
+
+        for (File file : files) {
+            String photoId = FilenameUtils.getBaseName(file.getAbsolutePath());
+
+            if (!orderOfPhotos.containsKey(photoId)) {
+                System.err.println("Something went wrong and we couldn't find id " + photoId + " in " + orderOfPhotos);
+            } else {
+                int order = orderOfPhotos.get(photoId);
+
+                String targetPath = String.format(pull.CACHE_DIRECTORY + "count/%03d_%s", order,
+                    FilenameUtils.getName(file.getAbsolutePath()));
+                File target = new File(targetPath);
+                // System.out.println("Target path will be " + targetPath);
+                FileUtils.copyFile(file, target);
+            }
+            // file.get
+        }
     }
 
     public static Properties parsePropertiesString(String s) throws IOException {
@@ -230,7 +260,7 @@ public class AlbumMirror {
     public Map<String, File> findFiles() {
         Map<String, File> cache = new HashMap<String, File>();
 
-        String[] extensions = { "jpg" };
+        String[] extensions = { "jpg", "png" };
         boolean recursive = true;
 
         Collection<File> files = FileUtils.listFiles(new File(CACHE_DIRECTORY), extensions, recursive);
@@ -383,6 +413,9 @@ public class AlbumMirror {
         return sizeToUse;
     }
 
+    // TODO delete this
+    private static Map<String, Integer> orderOfPhotos = new TreeMap<>();
+
     /**
      * By design the calls used here will only return a
      * <a href="http://flickrj.sourceforge.net/faq.php?faq_id=4">minimally filled out object</a>.
@@ -395,10 +428,15 @@ public class AlbumMirror {
         int setSize = info.getPhotoCount();
 
         ArrayList<Photo> photos = new ArrayList<Photo>(setSize);
-
+        // int count = 1;
         for (int i = 1; i <= (setSize / PAGE_SIZE) + 1; i++) {
 
             PhotoList<Photo> photoList = photoSets.getPhotos(setId, PAGE_SIZE, i);
+
+            // for (Photo photo : photoList) {
+            // System.out.println("Id for photo is: " + count + " for id " + photo.getId());
+            // orderOfPhotos.put(photo.getId(), count++);
+            // }
 
             photos.addAll(photoList);
         }
