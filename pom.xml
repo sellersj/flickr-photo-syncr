@@ -7,7 +7,7 @@
   <name>Flickr Photo Syncr</name>
 
   <properties>
-    <maven.compiler.release>16</maven.compiler.release>
+    <maven.compiler.release>17</maven.compiler.release>
   </properties>
 
   <dependencyManagement>
