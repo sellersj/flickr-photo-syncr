@@ -3,7 +3,7 @@ package com.github.sellersj.flickrps;
 import java.io.File;
 import java.util.Collection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.github.sellersj.flickrps.model.MetadataTag;
 
