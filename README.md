@@ -7,6 +7,11 @@ There are a couple of uses for this library.
 
 Future plans would include downloading / backuping up all metadata.
 
+## Sync to removable drive
+```
+rsync  -avz --delete /Users/sellersj/Downloads/flickr_frame/ /Volumes/my\ drive
+```
+
 ## Check for new plugins and dependencies
 `versions:display-plugin-updates`
 `versions:display-dependency-updates -DprocessDependencyManagement=false`
