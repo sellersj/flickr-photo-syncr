@@ -9,7 +9,7 @@ Future plans would include downloading / backuping up all metadata.
 
 ## Sync to removable drive
 ```
-rsync  -avz --delete /Users/sellersj/Downloads/flickr_frame/ /Volumes/my\ drive
+rsync  -av --delete /Users/sellersj/Downloads/flickr_frame/ /Volumes/my\ drive
 ```
 
 ## Check for new plugins and dependencies
