@@ -148,6 +148,7 @@ public class AlbumMirror {
     }
 
     public static Properties parsePropertiesString(String s) throws IOException {
+        System.out.println("Loading properties file: " + s);
         final Properties p = new Properties();
         p.load(new FileInputStream(s));
         return p;
