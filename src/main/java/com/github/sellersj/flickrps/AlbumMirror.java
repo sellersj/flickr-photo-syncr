@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,7 +61,10 @@ public class AlbumMirror {
 
     /** The image size we want the pictures to be. */
     // Size.ORIGINAL; -- use this if you're using a projector?
-    private static final int DEFAULT_IMAGE_SIZE = Size.LARGE_2048;
+    private static final String SIZE_ORIGINAL = "Original";
+
+    private static final String DEFAULT_IMAGE_SIZE = "Large 2048";
+    // private static final String DEFAULT_IMAGE_SIZE = Size.ORIGINAL;
 
     private Flickr flickr;
 
@@ -372,7 +376,7 @@ public class AlbumMirror {
         String target = size.getSource();
         System.out.println("The url we're trying to use is: " + target);
 
-        URL url = new URL(target);
+        URL url = URI.create(target).toURL();
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
         conn.connect();
         BufferedImage bi = ImageIO.read(conn.getInputStream());
@@ -394,11 +398,11 @@ public class AlbumMirror {
         // original
         Collection<Size> sizes = photoInterface.getSizes(photoId);
         for (Size size : sizes) {
-            if (Size.ORIGINAL == size.getLabel()) {
+            if (SIZE_ORIGINAL.equals(size.getLabelName())) {
                 original = size;
             }
 
-            if (DEFAULT_IMAGE_SIZE == size.getLabel()) {
+            if (DEFAULT_IMAGE_SIZE.equals(size.getLabelName())) {
                 sizeToUse = size;
                 break;
             }
